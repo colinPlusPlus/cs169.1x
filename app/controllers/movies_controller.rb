@@ -17,9 +17,7 @@ class MoviesController < ApplicationController
     @date_hilite = false
     @title_hilite = false
     
-    if !ratings.nil?
-      redirect_to movies_path(:id => session[:id])  
-    end
+    
     #Set ASC order of title or release date
     case id
       when 'title_header'
