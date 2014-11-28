@@ -8,31 +8,16 @@ class MoviesController < ApplicationController
   end
   
   def index
-    id = params[:id]
-    ratings = params[:ratings]
-    session[:id] = id
-    session[:ratings] = ratings
-    @all_ratings = MoviesController.Movie(Movie.all)
-    @checked = ratings ? ratings.keys : @all_ratings
-    @date_hilite = false
-    @title_hilite = false
-    
-    
-    #Set ASC order of title or release date
-    case id
-      when 'title_header'
-      @movies = Movie.order(:title)
-      @title_hilite = true
-      when 'release_date_header'
-      @movies = Movie.order(:release_date)
-      @date_hilite = true
-      when nil
-      @movies = Movie.all
+    if (params[:sort_by].blank? && params[:ratings].blank? && ! session[:sort_by].blank?)
+      flash.keep
+      redirect_to movies_path(:sort_by => session[:sort_by], :ratings => session[:ratings])
     end
-    #Set View to only show selected rating
- 
-    @movies = Movie.find(:all, :conditions => {:rating => @checked} ) if ratings
-    
+    @sort_by = params[:sort_by] ? params[:sort_by] : 'id'
+    @all_ratings = MoviesController.Movie(Movie.all)
+    @checked = params[:ratings] ? params[:ratings].respond_to?('keys') ? params[:ratings].keys : params[:ratings] : @all_ratings
+    session[:sort_by] = @sort_by
+    session[:ratings] = @checked
+    @movies = Movie.where({:rating => @checked}).find(:all, :order => @sort_by)
   end
 
   def new
